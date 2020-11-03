@@ -35,6 +35,7 @@ func (c *Consul) MakeClient() (*consulapi.Client, error) {
 }
 func NewConsulService(svrName string, useType string, svrPort int, healthPort int, healthType string,ip string) (*Consul, error) {
 	var err error
+	// 注册配置信息
 	reg := &consulapi.AgentServiceRegistration{
 		ID:      strings.ToLower(fmt.Sprintf("%s_%s", svrName, ip)), // 生成一个唯一当服务ID
 		Name:    strings.ToLower(fmt.Sprintf("%s", svrName)),        // 注册服务名
