@@ -33,6 +33,13 @@ func (c *Consul) MakeClient() (*consulapi.Client, error) {
 
 	return client, nil
 }
+// @param svrName string: 要注册当服务名
+// @param useType string: 对应consul中的tag, 可用于过滤
+// @param svrPort int: 服务对应的端口号
+// @param healthPort int: http检测时需要对应端口号，tcp检测默认当前端口
+// @param healthType string: http或tcp,
+// @param localIp string: 当前节点的内网IP，即其他服务能访问到的IP
+
 func NewConsulService(svrName string, useType string, svrPort int, healthPort int, healthType string,ip string) (*Consul, error) {
 	var err error
 	// 注册配置信息
@@ -104,10 +111,11 @@ func RunHealthCheck(addr string) error {
 
 	http.HandleFunc(uri.Path, func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("success"))
+		log.Println("porttttt")
 	})
 	go func() {
 		err := http.ListenAndServe(uri.Host, nil)
-
+	log.Println("porttttt")
 		if err != nil {
 			fmt.Println(err)
 		}
