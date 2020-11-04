@@ -14,7 +14,7 @@ type Consul struct {
 }
 func (c *Consul) MakeClient() (*consulapi.Client, error) {
 
-	uriStr := "127.0.0.1:8500"
+	uriStr := c.registration.Address+":8500"
 	token := ""
 
 	config := consulapi.DefaultConfig()
@@ -117,24 +117,19 @@ func RunHealthCheck(addr string) error {
 
 // TODO 获取服务列表
 func GetAvailableService() {
-
 	uriStr := "127.0.0.1:8500"
 	token := ""
-
 	config := consulapi.DefaultConfig()
 	config.Address = uriStr
-
 	if len(token) > 0 {
 		config.Token = token
 	} else {
 		config.Token = "defaultToken"
 	}
-
 	client, err := consulapi.NewClient(config)
 	if err != nil {
 		log.Println(err)
 	}
-
 	if err != nil {
 		log.Println(err)
 	}

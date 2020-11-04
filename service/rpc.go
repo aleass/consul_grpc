@@ -4,9 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"fmt"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/reflection"
+	"log"
 	"net"
+	"strings"
 )
 
 type IpArea struct {
@@ -30,7 +34,13 @@ func ip2Long(ip string) uint32 {
 }
 
 type GetAdderToIp struct{}
+
 func(g GetAdderToIp) GetAdderToIp(c context.Context,req *IpInfo) (*AdderInfo, error){
+	str,err := GetClientIP(c)
+	if err != nil {
+		log.Println("err:",err)
+	}
+	log.Println("request client:",str)
 	AdderData := &AdderInfo{Adder: []string{"1.1.1.1"}}
 	//IpList := req.GetIp()
 	//if len(IpList) == 0  {
@@ -86,4 +96,20 @@ func getGrpcServer() *grpc.Server {
 	RegisterIp2AdderServiceServer(s, new(GetAdderToIp))
 	reflection.Register(s)
 	return s
+}
+func GetClientIP(ctx context.Context) (string, error) {
+	pr, ok := peer.FromContext(ctx)
+	if !ok {
+		return "", fmt.Errorf("[getClinetIP] invoke FromContext() failed")
+	}
+	if pr.Addr == net.Addr(nil) {
+		return "", fmt.Errorf("[getClientIP] peer.Addr is nil")
+	}
+
+	addSlice := strings.Split(pr.Addr.String(), ":")
+	if addSlice[0] == "[" {
+		//本机地址
+		return "localhost", nil
+	}
+	return addSlice[0], nil
 }

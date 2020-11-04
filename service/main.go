@@ -15,7 +15,7 @@ var (
 	port       = 6868
 	healthPort = 9999
 	healthType = "http"
-	ip = "127.0.0.1"
+	ip = "193.112.29.115"
 )
 
 func main() {
