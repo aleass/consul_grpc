@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"consul_grpc/service/common"
 	"context"
 	"encoding/binary"
 	"fmt"
@@ -26,6 +27,24 @@ type IpRange struct {
 }
 var  Ips  IpData
 type IpData []IpRange
+func init() {
+	NewIpArea := make([]IpArea,0)
+	common.MainDbEngine.Find(&NewIpArea)
+	Ips = make(IpData,0)
+	if len(Ips) < 100 {
+		for _,v := range NewIpArea {
+			ir := IpRange{
+				Begin: v.IpStart,
+				End: v.IpEnd,
+				Data:  []byte(v.Area),
+			}
+			Ips = append(Ips,ir)
+		}
+	}
+}
+
+
+
 
 func ip2Long(ip string) uint32 {
 	var long uint32
@@ -33,58 +52,61 @@ func ip2Long(ip string) uint32 {
 	return long
 }
 
+
 type GetAdderToIp struct{}
 
 func(g GetAdderToIp) GetAdderToIp(c context.Context,req *IpInfo) (*AdderInfo, error){
+	AdderData := &AdderInfo{}
+	IpList := req.GetIp()
+	if len(IpList) == 0  {
+		return AdderData, nil
+	}
+
 	str,err := GetClientIP(c)
 	if err != nil {
 		log.Println("err:",err)
 	}
 	log.Println("request client:",str)
-	AdderData := &AdderInfo{Adder: []string{"1.1.1.1"}}
-	//IpList := req.GetIp()
-	//if len(IpList) == 0  {
-	//	return AdderData, nil
-	//}
-	//for _,v := range IpList{
-	//	r := ip2Long(v)
-	//	lIps := len(Ips)
-	//	left, right := 1, lIps
-	//	if r < Ips[0].Begin {
-	//		AdderData.Adder = append(AdderData.Adder,"IP地址有误")
-	//		continue
-	//	}
-	//	if r > Ips[lIps-1].End{
-	//		AdderData.Adder = append(AdderData.Adder,"IP地址有误")
-	//		continue
-	//	}
-	//	if r >= 0 && r <= Ips[0].End {
-	//		AdderData.Adder = append(AdderData.Adder,"IANA保留地址")
-	//		continue
-	//	}
-	//	_is := false
-	//	for t:=0;t<lIps;t++ {
-	//		//二分查找?
-	//		mid := (left + right)/2
-	//		if r < Ips[mid].Begin {
-	//			right = mid
-	//			continue
-	//		}
-	//		if r > Ips[mid].End {
-	//			left = mid
-	//			continue
-	//		}
-	//		if r >= Ips[mid].Begin && r <= Ips[mid].End {
-	//			AdderData.Adder = append(AdderData.Adder,string(Ips[mid].Data))
-	//			_is = true
-	//			break
-	//		}
-	//		mid ++
-	//	}
-	//	if !_is {
-	//		AdderData.Adder = append(AdderData.Adder,"unknow")
-	//	}
-	//}
+	log.Println("request data:",IpList)
+	for _,v := range IpList{
+		r := ip2Long(v)
+		lIps := len(Ips)
+		left, right := 1, lIps
+		if r < Ips[0].Begin {
+			AdderData.Adder = append(AdderData.Adder,"IP地址有误")
+			continue
+		}
+		if r > Ips[lIps-1].End{
+			AdderData.Adder = append(AdderData.Adder,"IP地址有误")
+			continue
+		}
+		if r >= 0 && r <= Ips[0].End {
+			AdderData.Adder = append(AdderData.Adder,"IANA保留地址")
+			continue
+		}
+		_is := false
+		for t:=0;t<lIps;t++ {
+			//二分查找?
+			mid := (left + right)/2
+			if r < Ips[mid].Begin {
+				right = mid
+				continue
+			}
+			if r > Ips[mid].End {
+				left = mid
+				continue
+			}
+			if r >= Ips[mid].Begin && r <= Ips[mid].End {
+				AdderData.Adder = append(AdderData.Adder,string(Ips[mid].Data))
+				_is = true
+				break
+			}
+			mid ++
+		}
+		if !_is {
+			AdderData.Adder = append(AdderData.Adder,"unknow")
+		}
+	}
 
 	return AdderData, nil
 }

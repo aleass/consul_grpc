@@ -111,11 +111,9 @@ func RunHealthCheck(addr string) error {
 
 	http.HandleFunc(uri.Path, func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("success"))
-		log.Println("porttttt")
 	})
 	go func() {
 		err := http.ListenAndServe(uri.Host, nil)
-	log.Println("porttttt")
 		if err != nil {
 			fmt.Println(err)
 		}

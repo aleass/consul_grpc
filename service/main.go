@@ -15,11 +15,11 @@ var (
 	port       = 6868
 	healthPort = 9999
 	healthType = "http"
-	ip = "193.112.29.115"
+	ip = "127.0.0.1"
 )
 
 func main() {
-	//// 监听本地端口
+	//监听本地端口
 	listen, err := net.Listen("tcp", ":"+strconv.Itoa(port))
 	s := getGrpcServer()
 	go func() {
