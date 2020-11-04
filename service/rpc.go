@@ -1,16 +1,20 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
-	"consul_grpc/service/common"
+	//"consul_grpc/service/common"
 	"context"
 	"encoding/binary"
 	"fmt"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/reflection"
+	"io"
 	"log"
 	"net"
+	"os"
+	"strconv"
 	"strings"
 )
 
@@ -27,22 +31,56 @@ type IpRange struct {
 }
 var  Ips  IpData
 type IpData []IpRange
+//func init1() {
+//	NewIpArea := make([]IpArea,0)
+//	common.MainDbEngine.Sql("SELECT `ip_start`, `ip_end`, `area` FROM `swhc`.`ip_area` limit 20").Find(&NewIpArea)
+//	Ips = make(IpData,0)
+//	for _,v := range NewIpArea {
+//		ir := IpRange{
+//			Begin: v.IpStart,
+//			End: v.IpEnd,
+//			Data:  []byte(v.Area),
+//		}
+//		Ips = append(Ips,ir)
+//	}
+//	l := len(Ips)
+//	log.Println(l)
+//	if l == 0 {
+//		panic("mysql error")
+//	}
+//
+//}
 func init() {
-	NewIpArea := make([]IpArea,0)
-	common.MainDbEngine.Find(&NewIpArea)
+	file, err := os.Open("./ip.txt")
 	Ips = make(IpData,0)
-	if len(Ips) < 100 {
-		for _,v := range NewIpArea {
-			ir := IpRange{
-				Begin: v.IpStart,
-				End: v.IpEnd,
-				Data:  []byte(v.Area),
-			}
-			Ips = append(Ips,ir)
+	if err != nil {
+		fmt.Println("文件打开失败 = ", err)
+	}
+	//及时关闭 file 句柄，否则会有内存泄漏
+	defer file.Close()
+	//创建一个 *Reader ， 是带缓冲的
+	reader := bufio.NewReader(file)
+	for {
+		str, err := reader.ReadString('\n') //读到一个换行就结束
+		if err == io.EOF {                  //io.EOF 表示文件的末尾
+			break
 		}
+		s := strings.Fields(str)
+		b,_ := strconv.Atoi(s[0])
+		e,_ := strconv.Atoi(s[1])
+		ir := IpRange{
+			Begin: uint32(b),
+			End: uint32(e),
+			Data:  []byte(s[2]),
+		}
+		Ips = append(Ips,ir)
+	}
+	l := len(Ips)
+	log.Println(l)
+	if l == 0 {
+		panic("mysql error")
 	}
 }
-
 
 
 
@@ -68,6 +106,7 @@ func(g GetAdderToIp) GetAdderToIp(c context.Context,req *IpInfo) (*AdderInfo, er
 	}
 	log.Println("request client:",str)
 	log.Println("request data:",IpList)
+
 	for _,v := range IpList{
 		r := ip2Long(v)
 		lIps := len(Ips)
