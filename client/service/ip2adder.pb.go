@@ -4,7 +4,7 @@
 // 	protoc        v3.3.0
 // source: ip2adder.proto
 
-package main
+package service
 
 import (
 	context "context"

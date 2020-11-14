@@ -3,6 +3,10 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"io"
+	"os"
+	"strconv"
+
 	//"consul_grpc/service/common"
 	"context"
 	"encoding/binary"
@@ -10,11 +14,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/reflection"
-	"io"
 	"log"
 	"net"
-	"os"
-	"strconv"
 	"strings"
 )
 
@@ -173,4 +174,9 @@ func GetClientIP(ctx context.Context) (string, error) {
 		return "localhost", nil
 	}
 	return addSlice[0], nil
+}
+
+
+func GetWay(){
+	fmt.Println("qqq")
 }

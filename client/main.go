@@ -1,63 +1,56 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc"
-	"log"
-	"os"
-	"os/signal"
-	"syscall"
+	"fmt"
+	"strings"
 )
 
+func init() {
+	str := "add_fa_qs"
+	f := str[0 : 1]
+	var StrType string
+	ReStrType := "D"
+	if strings.Index(str,"_") > -1 {
+		StrType = "L"
+	}else if strings.ToUpper(f) == f {
+		StrType = "D"
+	}else {
+		StrType = "X"
+	}
+	var strs string
+	i := 0
+
+
+	for _,v := range []byte(str){
+		if StrType == "L"  {
+			if v == 95 {
+				i = 0
+			}else {
+				if i == 0{
+					if ReStrType != "L"{
+						strs += strings.ToUpper(string(v))
+						i = 1
+					}else  {
+
+					}
+				}else {
+					strs += string(v)
+				}
+			}
+		}else if StrType == "U" {
+			fmt.Println("a")
+		} else {
+			fmt.Println("a")
+		}
+	}
+	fmt.Println(strs)
+}
+
+
+
 func main() {
-	router := gin.Default()
-	router.POST("/get_adder", UserLogin)
-	_ = router.Run(":8080")
-	quit := make(chan os.Signal)
-	signal.Notify(quit, syscall.SIGKILL, syscall.SIGQUIT, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-}
-
-func UserLogin(c *gin.Context){
-	Req := struct{
-		Ips []string `json:"ips"`
-	}{}
-	if err := c.ShouldBindJSON(&Req); err != nil {
-		log.Println(err)
-	}
-	res,err := GetAdder(Req.Ips)
-	if err != nil {
-		log.Println(err)
-	}
-	Res(c, res)
-
-}
-func Res(c *gin.Context,data interface{}){
-	resp := &struct{
-		Ret int
-		Data interface{}
-	}{
-		200,
-		data,
-	}
-	c.JSON(200, resp)
-	response, _ := json.Marshal(resp)
-	c.Set("response", string(response))
-}
-func GetAdder(ips []string)([]string, error) {
-	conn, err := grpc.Dial("in96.cn:6868", grpc.WithInsecure())
-	if err != nil {
-		panic(err.Error())
-	}
-	defer conn.Close()
-	orderServiceClient := NewIp2AdderServiceClient(conn)
-	//接收的参数  []string类型
-	IpList := IpInfo{Ip: ips}
-	res, err := orderServiceClient.GetAdderToIp(context.Background(),&IpList)
-	if err != nil {
-		return []string{},err
-	}
-	return res.Adder,nil
+	//route.RouteInit()
+	//quit := make(chan os.Signal)
+	//signal.Notify(quit, syscall.SIGKILL, syscall.SIGQUIT, syscall.SIGINT, syscall.SIGTERM)
+	//<-quit
 }
