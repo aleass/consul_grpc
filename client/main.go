@@ -1,8 +1,12 @@
 package main
 
 import (
+	"client/route"
 	"fmt"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 )
 
 func init() {
@@ -49,8 +53,8 @@ func init() {
 
 
 func main() {
-	//route.RouteInit()
-	//quit := make(chan os.Signal)
-	//signal.Notify(quit, syscall.SIGKILL, syscall.SIGQUIT, syscall.SIGINT, syscall.SIGTERM)
-	//<-quit
+	route.RouteInit()
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGKILL, syscall.SIGQUIT, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
 }
