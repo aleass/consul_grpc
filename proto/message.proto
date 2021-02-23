@@ -1,0 +1,14 @@
+syntax = "proto3";
+option go_package = ".;pb";
+
+message IpInfo {
+    repeated string ip = 1;
+}
+
+message AdderInfo {
+    repeated string adder = 1;
+}
+
+service Ip2AdderService{
+    rpc GetAdderToIp(IpInfo) returns (AdderInfo);
+}
